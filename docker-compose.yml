@@ -1,0 +1,55 @@
+version: "3.8"
+
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama:/root/.ollama
+    environment:
+      - OLLAMA_NUM_PARALLEL=1
+    shm_size: "8gb"
+    # 如果你有 NVIDIA GPU，可启用（需要宿主机配置好 nvidia-container-toolkit）
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+
+  # 代理：负责给请求补上 model，并转发到 ollama 的 /v1
+  ai-proxy:
+    build: ./proxy
+    container_name: ai-proxy
+    restart: unless-stopped
+    environment:
+      - UPSTREAM_BASE=http://ollama:11434
+      - DEFAULT_MODEL=deepseek-r1:latest
+      - AUTO_PULL=1
+    ports:
+      - "18000:18000"
+    depends_on:
+      - ollama
+
+  # 思源：你可以按自己现有部署方式调整（端口、鉴权等）
+  siyuan:
+    image: itian932/siyuan-unlock:latest
+    container_name: siyuan
+    restart: unless-stopped
+    command: ['--workspace=/siyuan/workspace/', '--accessAuthCode=mtt2001']
+    ports:
+      - "6806:6806"
+    volumes:
+      - siyuan:/siyuan/workspace
+    environment:
+      - SIYUAN_PORT=6806
+    depends_on:
+      - ai-proxy
+
+volumes:
+  ollama:
+  siyuan:
