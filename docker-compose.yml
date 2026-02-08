@@ -8,27 +8,24 @@ services:
     ports:
       - "11434:11434"
     volumes:
-      - ollama:/root/.ollama
+      - ollama_data:/root/.ollama
+    # 关键：指定运行时为 nvidia (Docker Desktop 会自动识别)
+    runtime: nvidia
+    shm_size: "8gb"
+    gpus: all
     environment:
       - OLLAMA_NUM_PARALLEL=1
-    shm_size: "8gb"
-    # 如果你有 NVIDIA GPU，可启用（需要宿主机配置好 nvidia-container-toolkit）
-    # deploy:
-    #   resources:
-    #     reservations:
-    #       devices:
-    #         - driver: nvidia
-    #           count: 1
-    #           capabilities: [gpu]
+      - OLLAMA_NUM_GPU_LAYERS=45
+      - OLLAMA_MAX_LOADED_MODELS=1
 
   # 代理：负责给请求补上 model，并转发到 ollama 的 /v1
-  ai-proxy:
+  proxy:
     build: ./proxy
-    container_name: ai-proxy
+    container_name: proxy
     restart: unless-stopped
     environment:
       - UPSTREAM_BASE=http://ollama:11434
-      - DEFAULT_MODEL=deepseek-r1:latest
+      - DEFAULT_MODEL=llama3.1:latest     # 可以指定默认模型
       - AUTO_PULL=1
     ports:
       - "18000:18000"
@@ -44,12 +41,12 @@ services:
     ports:
       - "6806:6806"
     volumes:
-      - siyuan:/siyuan/workspace
+      - siyuan_data:/siyuan/workspace
     environment:
       - SIYUAN_PORT=6806
     depends_on:
-      - ai-proxy
+      - proxy
 
 volumes:
-  ollama:
-  siyuan:
+  ollama_data:
+  siyuan_data:
