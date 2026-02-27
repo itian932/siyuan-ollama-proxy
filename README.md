@@ -46,8 +46,6 @@ docker compose up -d --build
 
 ### 插件系列
 
-
-
 http://localhost:18000/v1?model=qwen3:8b
 
 ## ollama
