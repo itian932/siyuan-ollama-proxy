@@ -14,9 +14,6 @@ docker compose up -d --build
 
 ## siyuan
 
-### 设置语言
-*设置*->*Appearance*->*Language*->*简体中文*
-
 ### 云端同步
 
 使用的是[CloudFlare](https://dash.cloudflare.com)的R2存储服务，插件存储桶，然后在*R2 对象存储*首页右下角的*API Tokens*点击*Manage*创建一个*帐户 API 令牌*，给予*管理员读和写*权限，并填入思源->*设置*->*云端*页面。
