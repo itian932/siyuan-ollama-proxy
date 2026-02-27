@@ -15,7 +15,6 @@ services:
     gpus: all
     environment:
       - OLLAMA_NUM_PARALLEL=1
-      - OLLAMA_NUM_GPU_LAYERS=45
       - OLLAMA_MAX_LOADED_MODELS=1
 
   # 代理：负责给请求补上 model，并转发到 ollama 的 /v1
@@ -34,7 +33,7 @@ services:
 
   # 思源：你可以按自己现有部署方式调整（端口、鉴权等）
   siyuan:
-    image: itian932/siyuan-unlock:latest
+    image: apkdv/siyuan-unlock:latest
     container_name: siyuan
     restart: unless-stopped
     command: ['--workspace=/siyuan/workspace/', '--accessAuthCode=mtt2001']
@@ -44,6 +43,8 @@ services:
       - siyuan_data:/siyuan/workspace
     environment:
       - SIYUAN_PORT=6806
+      - LANG=zh_CN.UTF-8
+      - LC_ALL=zh_CN.UTF-8
     depends_on:
       - proxy
 
